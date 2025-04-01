@@ -36,6 +36,52 @@
                 radial-gradient(circle at 75% 75%, rgba(131, 197, 190, 0.1) 0%, transparent 50%);
         }
         
+        /* Particle Effects */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .particle {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            animation: float linear infinite;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0deg); }
+            100% { transform: translateY(-100vh) rotate(360deg); }
+        }
+
+        /* Floating TON coins */
+        .floating-coins {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .ton-coin {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: url('https://ton.org/download/ton_symbol.png') center/contain no-repeat;
+            opacity: 0.15;
+            animation: floatCoin linear infinite;
+        }
+
+        @keyframes floatCoin {
+            0% { transform: translateY(100vh) rotate(0deg); }
+            100% { transform: translateY(-100px) rotate(360deg); }
+        }
+        
         .dex-container {
             width: 100%;
             max-width: 400px;
@@ -46,6 +92,7 @@
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
             position: relative;
             overflow: hidden;
+            backdrop-filter: blur(5px);
         }
         
         .dex-container::before {
@@ -271,6 +318,10 @@
     </style>
 </head>
 <body>
+    <!-- Particle Effects -->
+    <div class="particles" id="particles"></div>
+    <div class="floating-coins" id="floatingCoins"></div>
+    
     <div class="dex-container">
         <div class="logo-container">
             <div class="dex-logo">
@@ -330,98 +381,157 @@
     </div>
     
     <script>
-        // Elements
-        const progressBar = document.getElementById('progressBar');
-        const statusText = document.getElementById('statusText');
-        const steps = [
-            document.getElementById('step1'),
-            document.getElementById('step2'),
-            document.getElementById('step3'),
-            document.getElementById('step4')
-        ];
-        const nodes = document.querySelectorAll('.blockchain-node');
-        
-        // Status messages
-        const messages = [
-            "Establishing secure connection...",
-            "Verifying network nodes...",
-            "Syncing with latest block...",
-            "Loading decentralized exchange contracts...",
-            "Checking wallet connection...",
-            "Finalizing security checks...",
-            "Ready to connect!"
-        ];
-        
-        // Simulate blockchain connection
-        let progress = 0;
-        let currentStep = 0;
-        let currentNode = 0;
-        
-        const interval = setInterval(() => {
-            // Update progress
-            progress += Math.random() * 5;
-            if (progress > 100) progress = 100;
-            progressBar.style.width = `${progress}%`;
+        // Create particle effects
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 20;
             
-            // Update steps
-            if (progress > 20 && currentStep === 0) {
-                steps[0].classList.add('completed');
-                steps[1].classList.add('active');
-                currentStep = 1;
-            } else if (progress > 45 && currentStep === 1) {
-                steps[1].classList.add('completed');
-                steps[2].classList.add('active');
-                currentStep = 2;
-            } else if (progress > 70 && currentStep === 2) {
-                steps[2].classList.add('completed');
-                steps[3].classList.add('active');
-                currentStep = 3;
-            } else if (progress > 90 && currentStep === 3) {
-                steps[3].classList.add('completed');
-                currentStep = 4;
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                // Random sizes
+                const size = Math.random() * 8 + 2;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                
+                // Random positions
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.top = `${Math.random() * 100}%`;
+                
+                // Random durations and delays
+                const duration = Math.random() * 20 + 10;
+                const delay = Math.random() * 5;
+                particle.style.animation = `float ${duration}s linear ${delay}s infinite`;
+                
+                particlesContainer.appendChild(particle);
             }
+        }
+
+        // Create floating TON coins
+        function createFloatingCoins() {
+            const container = document.getElementById('floatingCoins');
+            const coinCount = 8;
             
-            // Update blockchain nodes animation
-            if (progress % 15 < 5 && currentNode < nodes.length) {
-                nodes.forEach(node => node.classList.remove('active'));
-                nodes[currentNode].classList.add('active');
-                currentNode = (currentNode + 1) % nodes.length;
+            for (let i = 0; i < coinCount; i++) {
+                const coin = document.createElement('div');
+                coin.classList.add('ton-coin');
+                
+                // Random sizes
+                const size = Math.random() * 20 + 15;
+                coin.style.width = `${size}px`;
+                coin.style.height = `${size}px`;
+                
+                // Random positions
+                coin.style.left = `${Math.random() * 100}%`;
+                
+                // Random durations and delays
+                const duration = Math.random() * 30 + 20;
+                const delay = Math.random() * 10;
+                coin.style.animation = `floatCoin ${duration}s linear ${delay}s infinite`;
+                
+                container.appendChild(coin);
             }
+        }
+
+        // Initialize effects when page loads
+        document.addEventListener("DOMContentLoaded", function() {
+            createParticles();
+            createFloatingCoins();
             
-            // Update status text
-            if (progress < 20) {
-                statusText.textContent = messages[0];
-            } else if (progress < 40) {
-                statusText.textContent = messages[1];
-            } else if (progress < 60) {
-                statusText.textContent = messages[2];
-            } else if (progress < 75) {
-                statusText.textContent = messages[3];
-            } else if (progress < 90) {
-                statusText.textContent = messages[4];
-            } else if (progress < 100) {
-                statusText.textContent = messages[5];
-            } else {
-                statusText.textContent = messages[6];
-            }
+            // Elements
+            const progressBar = document.getElementById('progressBar');
+            const statusText = document.getElementById('statusText');
+            const steps = [
+                document.getElementById('step1'),
+                document.getElementById('step2'),
+                document.getElementById('step3'),
+                document.getElementById('step4')
+            ];
+            const nodes = document.querySelectorAll('.blockchain-node');
             
-            // Complete loading
-            if (progress >= 100) {
-                clearInterval(interval);
-                setTimeout(() => {
-                    window.location.href = "https://piswap362.github.io/TonDex_swap/";
-                }, 1000);
-            }
-        }, 200);
-        
-        // Add slight randomness to blockchain nodes
-        setInterval(() => {
-            nodes.forEach(node => {
-                if (!node.classList.contains('active')) {
-                    node.style.opacity = (0.4 + Math.random() * 0.3).toString();
+            // Status messages
+            const messages = [
+                "Establishing secure connection...",
+                "Verifying network nodes...",
+                "Syncing with latest block...",
+                "Loading decentralized exchange contracts...",
+                "Checking wallet connection...",
+                "Finalizing security checks...",
+                "Ready to connect!"
+            ];
+            
+            // Simulate blockchain connection
+            let progress = 0;
+            let currentStep = 0;
+            let currentNode = 0;
+            
+            const interval = setInterval(() => {
+                // Update progress
+                progress += Math.random() * 5;
+                if (progress > 100) progress = 100;
+                progressBar.style.width = `${progress}%`;
+                
+                // Update steps
+                if (progress > 20 && currentStep === 0) {
+                    steps[0].classList.add('completed');
+                    steps[1].classList.add('active');
+                    currentStep = 1;
+                } else if (progress > 45 && currentStep === 1) {
+                    steps[1].classList.add('completed');
+                    steps[2].classList.add('active');
+                    currentStep = 2;
+                } else if (progress > 70 && currentStep === 2) {
+                    steps[2].classList.add('completed');
+                    steps[3].classList.add('active');
+                    currentStep = 3;
+                } else if (progress > 90 && currentStep === 3) {
+                    steps[3].classList.add('completed');
+                    currentStep = 4;
                 }
-            });
-        }, 800);
+                
+                // Update blockchain nodes animation
+                if (progress % 15 < 5 && currentNode < nodes.length) {
+                    nodes.forEach(node => node.classList.remove('active'));
+                    nodes[currentNode].classList.add('active');
+                    currentNode = (currentNode + 1) % nodes.length;
+                }
+                
+                // Update status text
+                if (progress < 20) {
+                    statusText.textContent = messages[0];
+                } else if (progress < 40) {
+                    statusText.textContent = messages[1];
+                } else if (progress < 60) {
+                    statusText.textContent = messages[2];
+                } else if (progress < 75) {
+                    statusText.textContent = messages[3];
+                } else if (progress < 90) {
+                    statusText.textContent = messages[4];
+                } else if (progress < 100) {
+                    statusText.textContent = messages[5];
+                } else {
+                    statusText.textContent = messages[6];
+                }
+                
+                // Complete loading
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        window.location.href = "https://piswap362.github.io/TonDex_swap/";
+                    }, 1000);
+                }
+            }, 200);
+            
+            // Add slight randomness to blockchain nodes
+            setInterval(() => {
+                nodes.forEach(node => {
+                    if (!node.classList.contains('active')) {
+                        node.style.opacity = (0.4 + Math.random() * 0.3).toString();
+                    }
+                });
+            }, 800);
+        });
     </script>
 </body>
 </html>
